@@ -21,14 +21,27 @@ SCOPE = [
 ]
 
 SPREADSHEET_ID = '1obO1W6o3hPzcjcISFmGVQDBYv9V_PCxcPsCUx8NAePY'
-creds_json = os.getenv('GOOGLE_CREDENTIALS')
-
 
 # ===================== SHEETS HELPERS =====================
 
 def get_sheets_client():
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(json.loads(creds_json), SCOPE)
-    return gspread.authorize(creds)
+    """Load credentials from environment variable or file"""
+    try:
+        creds_json = os.getenv('GOOGLE_CREDENTIALS')
+        
+        # Try environment variable first
+        if creds_json:
+            creds = ServiceAccountCredentials.from_json_keyfile_dict(json.loads(creds_json), SCOPE)
+        # Fallback to local file for development
+        elif os.path.exists('credentials.json'):
+            creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', SCOPE)
+        else:
+            raise Exception("No credentials found. Set GOOGLE_CREDENTIALS env var or add credentials.json")
+        
+        return gspread.authorize(creds)
+    except Exception as e:
+        print(f"Error loading credentials: {e}")
+        raise
 
 
 def get_worksheet(sheet_name):
@@ -202,6 +215,10 @@ def get_student_info(enrollment_no):
 
 
 # ===================== HEALTH =====================
+
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({'status': 'Backend is running!', 'docs': '/apidocs/'})
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
