@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { formatTimeRemaining, isEventEnded } from './utils/timezone';
 
 // Replace this with your teammate's actual hosted API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/leaderboard";
+const TARGET_END_TIME = new Date("02/18/2026 21:30:00");
 
 export default function Leaderboard() {
   const [data, setData] = useState<any[]>([]);
@@ -13,8 +15,6 @@ export default function Leaderboard() {
   const [timeLeft, setTimeLeft] = useState("API SYNC ACTIVE");
   const [isRoundOver, setIsRoundOver] = useState(false);
   const [apiError, setApiError] = useState<string>("");
-
-  const TARGET_END_TIME = new Date("02/18/2026 21:30:00").getTime();
 
   const fetchData = async () => {
     setIsSyncing(true);
@@ -42,23 +42,14 @@ export default function Leaderboard() {
   useEffect(() => {
     fetchData();
     const timerInterval = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = TARGET_END_TIME - now;
-
-      if (distance <= 0) {
-        setTimeLeft("ROUND ENDED");
+      const timeDisplay = formatTimeRemaining(TARGET_END_TIME);
+      setTimeLeft(timeDisplay);
+      
+      if (isEventEnded(TARGET_END_TIME)) {
         setIsRoundOver(true);
         clearInterval(timerInterval);
       } else {
         setIsRoundOver(false);
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-        const hDisplay = hours > 0 ? `${hours}h ` : "";
-        const mDisplay = minutes < 10 ? `0${minutes}` : minutes;
-        const sDisplay = seconds < 10 ? `0${seconds}` : seconds;
-        setTimeLeft(`${hDisplay}${mDisplay}m ${sDisplay}s`);
       }
     }, 1000);
 

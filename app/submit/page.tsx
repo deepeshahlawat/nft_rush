@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { isEventEnded } from '../utils/timezone';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/leaderboard', '/submit') || "http://localhost:5000/api/submit";
+const TARGET_END_TIME = new Date("02/18/2026 21:30:00");
 
 export default function SubmitPage() {
   const [enrollment, setEnrollment] = useState('');
@@ -13,8 +15,12 @@ export default function SubmitPage() {
     message: ''
   });
   const [loading, setLoading] = useState(false);
+  const [eventEnded, setEventEnded] = useState(false);
 
-  // Function to play success sound
+  // Check if event has ended on component mount
+  useEffect(() => {
+    setEventEnded(isEventEnded(TARGET_END_TIME));
+  }, []);
   const playSuccessSound = () => {
     const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
     audio.volume = 0.5;
@@ -23,6 +29,17 @@ export default function SubmitPage() {
 
   const handleClaim = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent submission if event has ended
+    if (isEventEnded(TARGET_END_TIME)) {
+      setStatus({ 
+        type: 'error', 
+        message: 'Event has ended. No more submissions are allowed.' 
+      });
+      setEventEnded(true);
+      return;
+    }
+
     setLoading(true);
     setStatus({ type: 'idle', message: '' });
 
@@ -64,7 +81,14 @@ export default function SubmitPage() {
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-yellow-500/10 blur-[80px] rounded-full"></div>
         
-        <header className="text-center mb-10">
+        {eventEnded && (
+          <div className="absolute top-0 left-0 right-0 bg-red-500/20 border-b border-red-500/40 py-4 px-6 text-center">
+            <p className="text-red-400 font-black text-sm uppercase tracking-widest">🔒 SUBMISSIONS CLOSED</p>
+            <p className="text-red-300 text-xs mt-1">The event has ended. No more submissions allowed.</p>
+          </div>
+        )}
+        
+        <header className={`text-center ${eventEnded ? 'mt-16' : 'mb-10'} mb-10`}>
           <div className="text-6xl mb-6 animate-pulse">⚡</div>
           <h1 className="text-4xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600">
             CLAIM POINTS
@@ -105,10 +129,10 @@ export default function SubmitPage() {
 
           <button 
             type="submit"
-            disabled={loading}
+            disabled={loading || eventEnded}
             className="w-full bg-yellow-500 hover:bg-yellow-400 disabled:bg-slate-800 disabled:text-slate-600 text-black font-black py-5 rounded-2xl transition-all active:scale-95 shadow-lg shadow-yellow-500/10 uppercase tracking-widest"
           >
-            {loading ? 'Verifying...' : 'Claim Now'}
+            {eventEnded ? 'Event Ended' : loading ? 'Verifying...' : 'Claim Now'}
           </button>
         </form>
 
