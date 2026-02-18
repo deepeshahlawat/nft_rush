@@ -57,22 +57,9 @@ export default function SubmitPage() {
 
       if (result.success) {
         playSuccessSound(); // Trigger sound here!
-        
-        // Fetch updated leaderboard to get the exact score displayed on leaderboard
-        const leaderboardUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/leaderboard";
-        const leaderboardResponse = await fetch(`${leaderboardUrl}?t=${new Date().getTime()}`);
-        const leaderboardData = await leaderboardResponse.json();
-        
-        // Find team's exact score from leaderboard
-        const teamData = leaderboardData.leaderboard.find((item: any) => 
-          item.team_name.toLowerCase() === result.team_name.toLowerCase()
-        );
-        
-        const displayScore = teamData?.score || result.score || 0;
-        
         setStatus({ 
           type: 'success', 
-          message: `BOOM! Code Claimed. Your new score is ${displayScore}!` 
+          message: `BOOM! Code Claimed. Your new score is ${result.score}!` 
         });
         setCode('');
       } else {
