@@ -4,6 +4,9 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 from flasgger import Swagger
+import json
+import os
+from io import StringIO
 
 app = Flask(__name__)
 CORS(app)
@@ -18,12 +21,13 @@ SCOPE = [
 ]
 
 SPREADSHEET_ID = '1obO1W6o3hPzcjcISFmGVQDBYv9V_PCxcPsCUx8NAePY'
+creds_json = os.getenv('GOOGLE_CREDENTIALS')
 
 
 # ===================== SHEETS HELPERS =====================
 
 def get_sheets_client():
-    creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', SCOPE)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(json.loads(creds_json), SCOPE)
     return gspread.authorize(creds)
 
 
