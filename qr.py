@@ -144,6 +144,7 @@ def get_student_claims(enrollment_no):
 def add_claim(enrollment_no, secret_code):
     """
     Adds claim AND stores multiplier at time of claim
+    Returns the multiplier value on success, None on failure
     """
     try:
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -157,9 +158,9 @@ def add_claim(enrollment_no, secret_code):
         timestamps_sheet = get_worksheet('ClaimTimestamps')
         timestamps_sheet.append_row([secret_code, enrollment_no, timestamp])
 
-        return True
+        return multiplier
     except:
-        return False
+        return None
 
 
 # ===================== SCORE CALCULATION =====================
@@ -229,8 +230,14 @@ def submit_code():
     if is_code_claimed(secret_code):
         return jsonify({'success': False, 'message': 'Already claimed'}), 400
 
-    if add_claim(enrollment_no, secret_code):
-        score = get_student_score(enrollment_no)
+    multiplier = add_claim(enrollment_no, secret_code)
+    if multiplier is not None:
+        # Get existing score before this claim and add the new multiplier
+        existing_claims = get_student_claims(enrollment_no)
+        # Existing claims list may not include the newly added claim yet due to eventual consistency
+        # So we calculate: previous claims total + new multiplier
+        previous_score = sum(int(c.get('Multiplier', 1)) for c in existing_claims)
+        score = previous_score + multiplier
         return jsonify({'success': True, 'score': score})
 
     return jsonify({'success': False}), 500
