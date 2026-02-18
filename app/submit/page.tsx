@@ -59,7 +59,7 @@ export default function SubmitPage() {
         playSuccessSound(); // Trigger sound here!
         setStatus({ 
           type: 'success', 
-          message: `BOOM! Code Claimed. Your new score is ${result.score}!` 
+          message: `BOOM! Code Claimed. Score updated by ${result.score}!` 
         });
         setCode('');
       } else {
@@ -154,7 +154,7 @@ export default function SubmitPage() {
       </div>
       
       <p className="mt-8 text-slate-700 text-[10px] font-bold uppercase tracking-widest">
-        Property of E-Cell / Comptech Scientia
+        Property of E-Cell
       </p>
     </div>
   );
