@@ -99,14 +99,18 @@ def get_enrollment_to_team_mapping():
     try:
         worksheet = get_worksheet('ValidEnrollments')
         records = worksheet.get_all_records()
+        print(f"DEBUG: Raw records from ValidEnrollments: {records}")
         mapping = {}
         for r in records:
             enrollment_no = str(r.get('EnrollmentNo', '')).strip()
             team_name = str(r.get('TeamName', '')).strip()
             if enrollment_no and team_name:
                 mapping[enrollment_no] = team_name
+                print(f"DEBUG: Mapped '{enrollment_no}' -> '{team_name}'")
+        print(f"DEBUG: Final mapping: {mapping}")
         return mapping
-    except:
+    except Exception as e:
+        print(f"DEBUG: Error in get_enrollment_to_team_mapping: {e}")
         return {}
 
 
@@ -295,15 +299,17 @@ def get_leaderboard():
     
     # Get enrollment to team mapping
     enrollment_to_team = get_enrollment_to_team_mapping()
+    print(f"DEBUG: Enrollment to team mapping: {enrollment_to_team}")
 
     scores = {}
 
     for r in records:
-        e = r.get('EnrollmentNo')
+        e = str(r.get('EnrollmentNo', '')).strip()
         multiplier = int(r.get('Multiplier', 1))
         
         # Get team name from mapping
         team_name = enrollment_to_team.get(e, e)  # Fall back to enrollment number if team name not found
+        print(f"DEBUG: Looking up enrollment '{e}' -> got team_name '{team_name}'")
 
         scores[team_name] = scores.get(team_name, 0) + multiplier
 
