@@ -14,7 +14,7 @@ export default function Leaderboard() {
   const [isRoundOver, setIsRoundOver] = useState(false);
   const [apiError, setApiError] = useState<string>("");
 
-  const TARGET_END_TIME = new Date("02/16/2026 14:00:00").getTime();
+  const TARGET_END_TIME = new Date("02/18/2026 21:30:00").getTime();
 
   const fetchData = async () => {
     setIsSyncing(true);
