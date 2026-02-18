@@ -9,7 +9,16 @@ import os
 from io import StringIO
 
 app = Flask(__name__)
-CORS(app)
+
+# Better CORS configuration for production
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["https://nftlead.vercel.app", "http://localhost:3000", "*"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    }
+})
 
 # Swagger config with detailed settings
 swagger_config = {

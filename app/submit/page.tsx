@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-const API_URL = "http://192.168.1.27:5000/api/submit";
+const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/leaderboard', '/submit') || "http://localhost:5000/api/submit";
 
 export default function SubmitPage() {
   const [enrollment, setEnrollment] = useState('');

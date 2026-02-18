@@ -12,15 +12,17 @@ export default function Leaderboard() {
   const [lastSync, setLastSync] = useState<string>("");
   const [timeLeft, setTimeLeft] = useState("API SYNC ACTIVE");
   const [isRoundOver, setIsRoundOver] = useState(false);
+  const [apiError, setApiError] = useState<string>("");
 
   const TARGET_END_TIME = new Date("02/16/2026 14:00:00").getTime();
 
   const fetchData = async () => {
     setIsSyncing(true);
+    setApiError("");
     try {
       // Adding a timestamp ensures the browser doesn't cache old data on reload
       const response = await fetch(`${API_URL}?t=${new Date().getTime()}`);
-      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) throw new Error(`API Offline (${response.status})`);
       
       const result = await response.json();
 
@@ -32,8 +34,11 @@ export default function Leaderboard() {
       setData(mappedData);
       setLastSync(new Date().toLocaleTimeString());
       setLoading(false);
-    } catch (error) {
+      setApiError("");
+    } catch (error: any) {
       console.error("API Sync Error:", error);
+      setApiError(error.message || "Server is offline");
+      setLoading(false);
     } finally {
       setTimeout(() => setIsSyncing(false), 800);
     }
@@ -122,7 +127,18 @@ export default function Leaderboard() {
 
         {loading ? (
           <div className="flex flex-col items-center py-20 text-yellow-500 font-black tracking-widest animate-pulse">
-             API HANDSHAKE...
+             {apiError ? `ERROR: ${apiError}` : 'API HANDSHAKE...'}
+          </div>
+        ) : apiError ? (
+          <div className="flex flex-col items-center py-20 text-red-500 font-black tracking-widest">
+            <div className="text-center">
+              <div className="text-6xl mb-4">⚠️</div>
+              <p className="text-2xl mb-2">SERVER OFFLINE</p>
+              <p className="text-sm text-red-400">{apiError}</p>
+              <button onClick={fetchData} className="mt-4 bg-red-600 hover:bg-red-500 px-6 py-3 rounded-lg font-black transition">
+                RETRY
+              </button>
+            </div>
           </div>
         ) : (
           <>
