@@ -11,8 +11,25 @@ from io import StringIO
 app = Flask(__name__)
 CORS(app)
 
-# Swagger config
-swagger = Swagger(app)
+# Swagger config with detailed settings
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": 'apispec',
+            "route": '/apispec.json',
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/apidocs/",
+    "title": "NFT Lead API",
+    "version": "1.0.0"
+}
+
+swagger = Swagger(app, config=swagger_config)
 
 # Google Sheets Setup
 SCOPE = [
@@ -152,6 +169,40 @@ def get_student_score(enrollment_no):
 
 @app.route('/api/submit', methods=['POST'])
 def submit_code():
+    """Submit a QR code claim
+    ---
+    tags:
+      - Claims
+    parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          required:
+            - enrollment_no
+            - secret_code
+          properties:
+            enrollment_no:
+              type: string
+              example: "A001"
+            secret_code:
+              type: string
+              example: "CODE123"
+    responses:
+      200:
+        description: Claim submitted successfully
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+            score:
+              type: integer
+      400:
+        description: Invalid submission
+      500:
+        description: Server error
+    """
     data = request.get_json()
 
     enrollment_no = str(data.get('enrollment_no', '')).strip()
@@ -180,6 +231,26 @@ def submit_code():
 
 @app.route('/api/leaderboard', methods=['GET'])
 def get_leaderboard():
+    """Get the leaderboard
+    ---
+    tags:
+      - Leaderboard
+    responses:
+      200:
+        description: Leaderboard data
+        schema:
+          type: object
+          properties:
+            leaderboard:
+              type: array
+              items:
+                type: object
+                properties:
+                  enrollment_no:
+                    type: string
+                  score:
+                    type: integer
+    """
     worksheet = get_worksheet('StudentClaims')
     records = worksheet.get_all_records()
 
@@ -204,6 +275,31 @@ def get_leaderboard():
 
 @app.route('/api/student/<enrollment_no>', methods=['GET'])
 def get_student_info(enrollment_no):
+    """Get student information and claims
+    ---
+    tags:
+      - Student
+    parameters:
+      - in: path
+        name: enrollment_no
+        type: string
+        required: true
+        example: "A001"
+    responses:
+      200:
+        description: Student information
+        schema:
+          type: object
+          properties:
+            enrollment_no:
+              type: string
+            score:
+              type: integer
+            claims:
+              type: array
+              items:
+                type: object
+    """
     claims = get_student_claims(enrollment_no)
     score = get_student_score(enrollment_no)
 
@@ -218,10 +314,26 @@ def get_student_info(enrollment_no):
 
 @app.route('/', methods=['GET'])
 def index():
+    """API Health Check - Root endpoint
+    ---
+    tags:
+      - Health
+    responses:
+      200:
+        description: Backend is running
+    """
     return jsonify({'status': 'Backend is running!', 'docs': '/apidocs/'})
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
+    """Health check endpoint
+    ---
+    tags:
+      - Health
+    responses:
+      200:
+        description: Backend is healthy
+    """
     return jsonify({'status': 'healthy'})
 
 
