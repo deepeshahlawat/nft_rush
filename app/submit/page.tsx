@@ -94,7 +94,7 @@ export default function SubmitPage() {
             CLAIM POINTS
           </h1>
           <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2">
-            UTkarsh '26 QR Hunt
+            UTkarsh '26 NFT Rush
           </p>
         </header>
 

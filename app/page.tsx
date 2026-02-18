@@ -106,7 +106,7 @@ export default function Leaderboard() {
 
         <header className="text-center mb-10 md:mb-16">
           <h1 className="text-4xl md:text-9xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 drop-shadow-md">
-            QR HUNT LIVE
+            NFT RUSH LIVE
           </h1>
           <p className="text-slate-600 mt-2 md:mt-4 font-black uppercase tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-base italic">UTkarsh '26 Leaderboard</p>
         </header>
