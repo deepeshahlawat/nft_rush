@@ -2,13 +2,20 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from flasgger import Swagger
 import json
 import os
 from io import StringIO
 
 app = Flask(__name__)
+
+# ===================== TIMEZONE SETUP =====================
+
+def get_ist_timestamp():
+    """Get current timestamp in UTC+5:30 (IST - Indian Standard Time)"""
+    ist = timezone(timedelta(hours=5, minutes=30))
+    return datetime.now(ist).strftime('%Y-%m-%d %H:%M:%S')
 
 # Better CORS configuration for production
 CORS(app, resources={
@@ -147,7 +154,7 @@ def add_claim(enrollment_no, secret_code):
     Returns the multiplier value on success, None on failure
     """
     try:
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        timestamp = get_ist_timestamp()
         multiplier = get_code_multiplier(secret_code)
 
         # StudentClaims: EnrollmentNo | SecretCode | Timestamp | Multiplier
