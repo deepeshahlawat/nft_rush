@@ -25,7 +25,7 @@ export default function Leaderboard() {
       const result = await response.json();
 
       const mappedData = result.leaderboard.map((item: any) => ({
-        name: item.enrollment_no,
+        name: item.team_name,
         points: item.score
       }));
 
@@ -150,7 +150,7 @@ export default function Leaderboard() {
                   <thead className="bg-slate-800/50 text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-widest">
                     <tr>
                       <th className="w-16 md:w-24 px-4 md:px-12 py-5 md:py-8 text-center">Rank</th>
-                      <th className="px-4 md:px-12 py-5 md:py-8">Enrollment</th>
+                      <th className="px-4 md:px-12 py-5 md:py-8">Team Name</th>
                       <th className="w-24 md:w-40 px-4 md:px-12 py-5 md:py-8 text-right">Points</th>
                     </tr>
                   </thead>

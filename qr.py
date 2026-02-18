@@ -94,6 +94,22 @@ def get_valid_enrollments():
         return []
 
 
+def get_enrollment_to_team_mapping():
+    """Get mapping from enrollment number to team name from ValidEnrollments sheet"""
+    try:
+        worksheet = get_worksheet('ValidEnrollments')
+        records = worksheet.get_all_records()
+        mapping = {}
+        for r in records:
+            enrollment_no = str(r.get('EnrollmentNo', '')).strip()
+            team_name = str(r.get('TeamName', '')).strip()
+            if enrollment_no and team_name:
+                mapping[enrollment_no] = team_name
+        return mapping
+    except:
+        return {}
+
+
 def get_valid_codes():
     try:
         worksheet = get_worksheet('ValidCodes')
@@ -269,24 +285,30 @@ def get_leaderboard():
               items:
                 type: object
                 properties:
-                  enrollment_no:
+                  team_name:
                     type: string
                   score:
                     type: integer
     """
     worksheet = get_worksheet('StudentClaims')
     records = worksheet.get_all_records()
+    
+    # Get enrollment to team mapping
+    enrollment_to_team = get_enrollment_to_team_mapping()
 
     scores = {}
 
     for r in records:
         e = r.get('EnrollmentNo')
         multiplier = int(r.get('Multiplier', 1))
+        
+        # Get team name from mapping
+        team_name = enrollment_to_team.get(e, e)  # Fall back to enrollment number if team name not found
 
-        scores[e] = scores.get(e, 0) + multiplier
+        scores[team_name] = scores.get(team_name, 0) + multiplier
 
     leaderboard = sorted(
-        [{'enrollment_no': k, 'score': v} for k, v in scores.items()],
+        [{'team_name': k, 'score': v} for k, v in scores.items()],
         key=lambda x: x['score'],
         reverse=True
     )
