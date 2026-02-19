@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { isEventEnded } from '../utils/timezone';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/leaderboard', '/submit') || "http://localhost:5000/api/submit";
-const TARGET_END_TIME = new Date("02/18/2026 21:30:00");
+const TARGET_END_TIME = new Date("02/19/2026 14:15:00");
 
 export default function SubmitPage() {
   const [enrollment, setEnrollment] = useState('');
