@@ -5,7 +5,7 @@ import { formatTimeRemaining, isEventEnded } from './utils/timezone';
 
 // Replace this with your teammate's actual hosted API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/leaderboard";
-const TARGET_END_TIME = new Date("02/19/2026 14:15:00");
+const TARGET_END_TIME = new Date("02/20/2026 14:15:00");
 
 export default function Leaderboard() {
   const [data, setData] = useState<any[]>([]);
